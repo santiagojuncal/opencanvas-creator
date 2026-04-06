@@ -64,4 +64,3 @@ Anyone can:
 * Modify the code
 * Submit improvements via Pull Requests
 
----
