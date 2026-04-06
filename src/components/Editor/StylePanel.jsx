@@ -126,6 +126,77 @@ function Section({ title, children, defaultOpen = true }) {
 }
 
 // ============================================================
+// Background editor (shared by all section components)
+// ============================================================
+function BackgroundEditor({ props, update }) {
+  const bg = props.background || { type: 'none' }
+  const setBg = (fields) => update({ background: { ...bg, ...fields } })
+
+  return (
+    <Section title="Fondo" defaultOpen={false}>
+      <Field label="Tipo de fondo">
+        <Segments
+          value={bg.type || 'none'}
+          onChange={v => setBg({ type: v })}
+          options={[
+            { value: 'none', label: 'Auto' },
+            { value: 'color', label: 'Color' },
+            { value: 'gradient', label: 'Gradiente' },
+            { value: 'image', label: 'Imagen' },
+          ]}
+        />
+      </Field>
+
+      {bg.type === 'color' && (
+        <ColorField label="Color de fondo" value={bg.color || '#f8fafc'} onChange={v => setBg({ color: v })} />
+      )}
+
+      {bg.type === 'gradient' && (
+        <>
+          <ColorField label="Color inicio" value={bg.gradientStart || '#2563eb'} onChange={v => setBg({ gradientStart: v })} />
+          <ColorField label="Color fin" value={bg.gradientEnd || '#1e40af'} onChange={v => setBg({ gradientEnd: v })} />
+          <Field label="Dirección">
+            <SelectInput
+              value={bg.gradientDir || '135deg'}
+              onChange={v => setBg({ gradientDir: v })}
+              options={[
+                { value: '135deg', label: 'Diagonal ↘' },
+                { value: '45deg', label: 'Diagonal ↗' },
+                { value: '180deg', label: 'Abajo ↓' },
+                { value: '90deg', label: 'Derecha →' },
+                { value: '0deg', label: 'Arriba ↑' },
+              ]}
+            />
+          </Field>
+        </>
+      )}
+
+      {bg.type === 'image' && (
+        <>
+          <Field label="URL de la imagen">
+            <TextInput
+              value={bg.imageUrl || ''}
+              onChange={v => setBg({ imageUrl: v })}
+              placeholder="https://images.unsplash.com/..."
+            />
+          </Field>
+          <Field label={`Oscurecer: ${Math.round((bg.overlayOpacity ?? 0.4) * 100)}%`}>
+            <input
+              type="range"
+              min="0" max="1" step="0.05"
+              value={bg.overlayOpacity ?? 0.4}
+              onChange={e => setBg({ overlayOpacity: Number(e.target.value) })}
+              className="prop-range"
+            />
+          </Field>
+          <ColorField label="Color del overlay" value={bg.overlayColor || '#000000'} onChange={v => setBg({ overlayColor: v })} />
+        </>
+      )}
+    </Section>
+  )
+}
+
+// ============================================================
 // Per-component editors
 // ============================================================
 
@@ -212,6 +283,7 @@ function HeroEditor({ props, update }) {
           />
         </Field>
       </Section>
+      <BackgroundEditor props={props} update={update} />
     </>
   )
 }
@@ -235,6 +307,7 @@ function TextSectionEditor({ props, update }) {
           />
         </Field>
       </Section>
+      <BackgroundEditor props={props} update={update} />
     </>
   )
 }
@@ -362,18 +435,22 @@ function FeaturesEditor({ props, update }) {
         ))}
         <button className="add-item-btn" onClick={addItem}>+ Agregar Item</button>
       </Section>
+      <BackgroundEditor props={props} update={update} />
     </>
   )
 }
 
 function TestimonialEditor({ props, update }) {
   return (
-    <Section title="Testimonio">
-      <Field label="Cita"><TextArea value={props.quote} onChange={v => update({ quote: v })} rows={4} /></Field>
-      <Field label="Nombre"><TextInput value={props.author} onChange={v => update({ author: v })} /></Field>
-      <Field label="Cargo / Empresa"><TextInput value={props.role} onChange={v => update({ role: v })} /></Field>
-      <Field label="URL del avatar"><TextInput value={props.avatar} onChange={v => update({ avatar: v })} placeholder="https://..." /></Field>
-    </Section>
+    <>
+      <Section title="Testimonio">
+        <Field label="Cita"><TextArea value={props.quote} onChange={v => update({ quote: v })} rows={4} /></Field>
+        <Field label="Nombre"><TextInput value={props.author} onChange={v => update({ author: v })} /></Field>
+        <Field label="Cargo / Empresa"><TextInput value={props.role} onChange={v => update({ role: v })} /></Field>
+        <Field label="URL del avatar"><TextInput value={props.avatar} onChange={v => update({ avatar: v })} placeholder="https://..." /></Field>
+      </Section>
+      <BackgroundEditor props={props} update={update} />
+    </>
   )
 }
 
@@ -420,6 +497,7 @@ function PricingEditor({ props, update }) {
         ))}
         <button className="add-item-btn" onClick={addPlan}>+ Agregar Plan</button>
       </Section>
+      <BackgroundEditor props={props} update={update} />
     </>
   )
 }
@@ -476,6 +554,99 @@ function FormEditor({ props, update }) {
         <Field label="Texto del botón"><TextInput value={props.submitText} onChange={v => update({ submitText: v })} /></Field>
         <Field label="Email de destino (opcional)"><TextInput value={props.submitEmail} onChange={v => update({ submitEmail: v })} placeholder="contacto@tuempresa.com" /></Field>
         <Field label="ID de sección (ancla)"><TextInput value={props.formId} onChange={v => update({ formId: v })} placeholder="contacto" /></Field>
+      </Section>
+      <BackgroundEditor props={props} update={update} />
+    </>
+  )
+}
+
+function CarouselEditor({ props, update }) {
+  function updateSlide(id, key, val) {
+    update({ slides: props.slides.map(s => s.id === id ? { ...s, [key]: val } : s) })
+  }
+  function addSlide() {
+    update({ slides: [...(props.slides || []), { id: generateId(), image: '', title: 'Nuevo Slide', description: '', cta: '', ctaLink: '#' }] })
+  }
+  function removeSlide(id) {
+    update({ slides: props.slides.filter(s => s.id !== id) })
+  }
+  return (
+    <>
+      <Section title="Slides">
+        {(props.slides || []).map((slide, i) => (
+          <div key={slide.id} className="list-item-row">
+            <div className="list-item-row__header">
+              <span className="list-item-row__title">Slide {i + 1}</span>
+              <button className="list-item-row__remove" onClick={() => removeSlide(slide.id)}>✕</button>
+            </div>
+            <Field label="URL de imagen"><TextInput value={slide.image} onChange={v => updateSlide(slide.id, 'image', v)} placeholder="https://..." /></Field>
+            <Field label="Título"><TextInput value={slide.title} onChange={v => updateSlide(slide.id, 'title', v)} /></Field>
+            <Field label="Descripción"><TextArea value={slide.description} onChange={v => updateSlide(slide.id, 'description', v)} rows={2} /></Field>
+            <Field label="Texto del botón"><TextInput value={slide.cta} onChange={v => updateSlide(slide.id, 'cta', v)} placeholder="Opcional" /></Field>
+            <Field label="URL del botón"><TextInput value={slide.ctaLink} onChange={v => updateSlide(slide.id, 'ctaLink', v)} placeholder="#" /></Field>
+          </div>
+        ))}
+        <button className="add-item-btn" onClick={addSlide}>+ Agregar Slide</button>
+      </Section>
+      <Section title="Diseño" defaultOpen={false}>
+        <Field label="Alto">
+          <SelectInput
+            value={props.height}
+            onChange={v => update({ height: v })}
+            options={[
+              { value: '380px', label: '380px — Compacto' },
+              { value: '480px', label: '480px' },
+              { value: '520px', label: '520px — Estándar' },
+              { value: '620px', label: '620px — Grande' },
+              { value: '80vh', label: '80vh — Pantalla' },
+            ]}
+          />
+        </Field>
+        <Field label="Alineación texto">
+          <Segments
+            value={props.textAlign || 'center'}
+            onChange={v => update({ textAlign: v })}
+            options={[{ value: 'left', label: 'Izq' }, { value: 'center', label: 'Centro' }, { value: 'right', label: 'Der' }]}
+          />
+        </Field>
+        <Field label="Transición">
+          <Segments
+            value={props.transition || 'fade'}
+            onChange={v => update({ transition: v })}
+            options={[{ value: 'fade', label: 'Fade' }, { value: 'slide', label: 'Slide' }]}
+          />
+        </Field>
+      </Section>
+      <Section title="Overlay" defaultOpen={false}>
+        <Field label={`Oscurecer: ${Math.round((props.overlayOpacity ?? 0.45) * 100)}%`}>
+          <input
+            type="range" min="0" max="1" step="0.05"
+            value={props.overlayOpacity ?? 0.45}
+            onChange={e => update({ overlayOpacity: Number(e.target.value) })}
+            className="prop-range"
+          />
+        </Field>
+        <ColorField label="Color overlay" value={props.overlayColor || '#000000'} onChange={v => update({ overlayColor: v })} />
+      </Section>
+      <Section title="Comportamiento" defaultOpen={false}>
+        <Toggle label="Auto reproducir" value={props.autoplay} onChange={v => update({ autoplay: v })} />
+        {props.autoplay && (
+          <Field label="Velocidad (ms)">
+            <SelectInput
+              value={String(props.speed || 4000)}
+              onChange={v => update({ speed: Number(v) })}
+              options={[
+                { value: '2000', label: '2s — Rápido' },
+                { value: '3000', label: '3s' },
+                { value: '4000', label: '4s — Estándar' },
+                { value: '6000', label: '6s — Lento' },
+                { value: '8000', label: '8s — Muy lento' },
+              ]}
+            />
+          </Field>
+        )}
+        <Toggle label="Mostrar flechas" value={props.showArrows} onChange={v => update({ showArrows: v })} />
+        <Toggle label="Mostrar puntos" value={props.showDots} onChange={v => update({ showDots: v })} />
       </Section>
     </>
   )
@@ -592,6 +763,7 @@ function FooterEditor({ props, update }) {
         ))}
         <button className="add-item-btn" onClick={addCol}>+ Agregar Columna</button>
       </Section>
+      <BackgroundEditor props={props} update={update} />
     </>
   )
 }
@@ -686,6 +858,7 @@ const COMPONENT_EDITORS = {
   hero: HeroEditor,
   textSection: TextSectionEditor,
   image: ImageEditor,
+  carousel: CarouselEditor,
   button: ButtonEditor,
   features: FeaturesEditor,
   testimonial: TestimonialEditor,
@@ -701,6 +874,7 @@ const COMPONENT_NAMES = {
   hero: 'Hero',
   textSection: 'Texto',
   image: 'Imagen',
+  carousel: 'Carrusel',
   button: 'Botón',
   features: 'Características',
   testimonial: 'Testimonio',

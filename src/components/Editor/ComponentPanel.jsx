@@ -15,6 +15,7 @@ const COMPONENT_GROUPS = [
     items: [
       { type: 'textSection', icon: 'T', label: 'Texto', desc: 'Sección de texto' },
       { type: 'image', icon: '🖼', label: 'Imagen', desc: 'Imagen con caption' },
+      { type: 'carousel', icon: '▷', label: 'Carrusel', desc: 'Slides con animación' },
       { type: 'button', icon: '◉', label: 'Botón', desc: 'Botón de acción' },
       { type: 'divider', icon: '—', label: 'Separador', desc: 'Línea divisoria' },
       { type: 'spacer', icon: '↕', label: 'Espaciado', desc: 'Espacio vacío' },

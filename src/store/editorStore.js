@@ -28,12 +28,14 @@ const componentDefaults = {
     textAlign: 'center',
     showSecondary: true,
     minHeight: '88vh',
+    background: { type: 'none' },
   },
   textSection: {
     heading: 'Sobre Nosotros',
     content: 'Aquí puedes escribir el contenido de esta sección. Comparte tu historia, misión o cualquier información relevante para tu audiencia. El texto puede ser tan largo como necesites para transmitir tu mensaje con claridad.',
     textAlign: 'left',
     showHeading: true,
+    background: { type: 'none' },
   },
   image: {
     src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&q=80',
@@ -61,6 +63,7 @@ const componentDefaults = {
     submitText: 'Enviar Mensaje',
     submitEmail: '',
     formId: 'contacto',
+    background: { type: 'none' },
   },
   features: {
     heading: 'Por Qué Elegirnos',
@@ -71,12 +74,14 @@ const componentDefaults = {
       { id: generateId(), icon: '🛡️', title: 'Seguridad', description: 'Máxima protección para tus datos y los de tus clientes con estándares enterprise.' },
       { id: generateId(), icon: '🎯', title: 'Precisión', description: 'Herramientas diseñadas con atención al detalle para resultados exactos y medibles.' },
     ],
+    background: { type: 'none' },
   },
   testimonial: {
     quote: '"Este servicio cambió completamente la forma en que trabajamos. Los resultados hablan por sí solos y el equipo es excepcional."',
     author: 'María García',
     role: 'CEO, Empresa Ejemplo',
     avatar: '',
+    background: { type: 'none' },
   },
   pricing: {
     heading: 'Planes y Precios',
@@ -86,6 +91,23 @@ const componentDefaults = {
       { id: generateId(), name: 'Pro', price: '$29', period: '/mes', features: ['Proyectos ilimitados', '100 GB de almacenamiento', 'Soporte prioritario 24/7', 'Analytics avanzados', 'Integraciones API'], cta: 'Empezar Ahora', highlighted: true },
       { id: generateId(), name: 'Enterprise', price: 'A medida', period: '', features: ['Todo lo de Pro', 'SLA personalizado', 'Onboarding dedicado', 'Facturación anual'], cta: 'Contactar', highlighted: false },
     ],
+    background: { type: 'none' },
+  },
+  carousel: {
+    slides: [
+      { id: generateId(), image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&q=80', title: 'Primer Slide', description: 'Describe aquí el mensaje principal de este slide.', cta: 'Ver más', ctaLink: '#' },
+      { id: generateId(), image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1200&q=80', title: 'Segundo Slide', description: 'Un segundo mensaje impactante para captar la atención.', cta: 'Contactar', ctaLink: '#contacto' },
+      { id: generateId(), image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200&q=80', title: 'Tercer Slide', description: 'Comparte tu propuesta de valor con imágenes potentes.', cta: 'Saber más', ctaLink: '#' },
+    ],
+    height: '520px',
+    autoplay: true,
+    speed: 4000,
+    showArrows: true,
+    showDots: true,
+    overlayOpacity: 0.45,
+    overlayColor: '#000000',
+    textAlign: 'center',
+    transition: 'fade',
   },
   divider: {
     style: 'line',
@@ -114,6 +136,7 @@ const componentDefaults = {
       { id: generateId(), heading: 'Empresa', links: [{ id: generateId(), text: 'Sobre Nosotros', href: '#' }, { id: generateId(), text: 'Contacto', href: '#' }] },
     ],
     copyright: `© ${new Date().getFullYear()} Tu Empresa. Todos los derechos reservados.`,
+    background: { type: 'none' },
   },
 }
 

@@ -58,13 +58,42 @@ function renderNavbar(props, styles) {
   </header>`
 }
 
+function getBgStyle(bg) {
+  if (!bg || bg.type === 'none' || !bg.type) return ''
+  if (bg.type === 'color' && bg.color) return `background:${bg.color};`
+  if (bg.type === 'gradient') {
+    const s = bg.gradientStart || '#2563eb'
+    const e = bg.gradientEnd || '#1e40af'
+    const d = bg.gradientDir || '135deg'
+    return `background:linear-gradient(${d},${s},${e});`
+  }
+  if (bg.type === 'image' && bg.imageUrl) {
+    return `background-image:url('${bg.imageUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;position:relative;`
+  }
+  return ''
+}
+
+function getBgOverlayHtml(bg) {
+  if (!bg || bg.type !== 'image') return ''
+  const opacity = Number(bg.overlayOpacity ?? 0.4)
+  if (opacity <= 0) return ''
+  const color = bg.overlayColor || '#000000'
+  return `<div style="position:absolute;inset:0;background:${color};opacity:${opacity};pointer-events:none;z-index:0;"></div>`
+}
+
 function renderHero(props) {
   const headline = escHtml(props.headline).replace(/\n/g, '<br>')
+  const bgStyle = getBgStyle(props.background)
+  const overlay = getBgOverlayHtml(props.background)
+  const isImgBg = props.background?.type === 'image'
+  const textStyle = isImgBg ? 'color:#fff;' : ''
+  const subStyle = isImgBg ? 'color:rgba(255,255,255,0.85);' : ''
   return `
-  <section class="oc-hero oc-hero--${props.textAlign}" style="min-height:${props.minHeight || '85vh'}">
-    <div class="oc-container oc-hero__content">
-      <h1 class="oc-hero__headline">${headline}</h1>
-      <p class="oc-hero__sub">${escHtml(props.subheadline).replace(/\n/g, '<br>')}</p>
+  <section class="oc-hero oc-hero--${props.textAlign}" style="min-height:${props.minHeight || '85vh'};${bgStyle}">
+    ${overlay}
+    <div class="oc-container oc-hero__content" style="position:relative;z-index:1;">
+      <h1 class="oc-hero__headline" style="${textStyle}">${headline}</h1>
+      <p class="oc-hero__sub" style="${subStyle}">${escHtml(props.subheadline).replace(/\n/g, '<br>')}</p>
       <div class="oc-hero__actions">
         <a href="${escHtml(props.ctaLink)}" class="oc-btn oc-btn--primary oc-btn--lg">${escHtml(props.ctaText)}</a>
         ${props.showSecondary ? `<a href="${escHtml(props.secondaryCtaLink)}" class="oc-btn oc-btn--outline oc-btn--lg">${escHtml(props.secondaryCtaText)}</a>` : ''}
@@ -74,11 +103,17 @@ function renderHero(props) {
 }
 
 function renderTextSection(props) {
+  const bgStyle = getBgStyle(props.background)
+  const overlay = getBgOverlayHtml(props.background)
+  const isImgBg = props.background?.type === 'image'
+  const textStyle = isImgBg ? 'color:#fff;' : ''
+  const subStyle = isImgBg ? 'color:rgba(255,255,255,0.85);' : ''
   return `
-  <section class="oc-text-section">
-    <div class="oc-container oc-text-section__inner oc-text-section--${props.textAlign}">
-      ${props.showHeading !== false ? `<h2 class="oc-section-heading">${escHtml(props.heading)}</h2>` : ''}
-      <div class="oc-prose">${escHtml(props.content).replace(/\n/g, '<br>')}</div>
+  <section class="oc-text-section" style="${bgStyle}">
+    ${overlay}
+    <div class="oc-container oc-text-section__inner oc-text-section--${props.textAlign}" style="position:relative;z-index:1;">
+      ${props.showHeading !== false ? `<h2 class="oc-section-heading" style="${textStyle}">${escHtml(props.heading)}</h2>` : ''}
+      <div class="oc-prose" style="${subStyle}">${escHtml(props.content).replace(/\n/g, '<br>')}</div>
     </div>
   </section>`
 }
@@ -110,17 +145,23 @@ function renderButton(props) {
 }
 
 function renderFeatures(props) {
+  const bgStyle = getBgStyle(props.background)
+  const overlay = getBgOverlayHtml(props.background)
+  const isImgBg = props.background?.type === 'image'
+  const textStyle = isImgBg ? 'color:#fff;' : ''
+  const subStyle = isImgBg ? 'color:rgba(255,255,255,0.8);' : ''
   const items = (props.items || []).map(item => `
-        <article class="oc-feature-card">
+        <article class="oc-feature-card" style="${isImgBg ? 'background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);' : ''}">
           <div class="oc-feature-card__icon" aria-hidden="true">${item.icon}</div>
-          <h3 class="oc-feature-card__title">${escHtml(item.title)}</h3>
-          <p class="oc-feature-card__desc">${escHtml(item.description)}</p>
+          <h3 class="oc-feature-card__title" style="${textStyle}">${escHtml(item.title)}</h3>
+          <p class="oc-feature-card__desc" style="${subStyle}">${escHtml(item.description)}</p>
         </article>`).join('')
   return `
-  <section class="oc-features">
-    <div class="oc-container">
-      ${props.heading ? `<h2 class="oc-section-heading oc-section-heading--center">${escHtml(props.heading)}</h2>` : ''}
-      ${props.subheading ? `<p class="oc-section-sub">${escHtml(props.subheading)}</p>` : ''}
+  <section class="oc-features" style="${bgStyle}">
+    ${overlay}
+    <div class="oc-container" style="position:relative;z-index:1;">
+      ${props.heading ? `<h2 class="oc-section-heading oc-section-heading--center" style="${textStyle}">${escHtml(props.heading)}</h2>` : ''}
+      ${props.subheading ? `<p class="oc-section-sub" style="${subStyle}">${escHtml(props.subheading)}</p>` : ''}
       <div class="oc-features__grid oc-features__grid--${props.columns || 3}">
         ${items}
       </div>
@@ -129,15 +170,21 @@ function renderFeatures(props) {
 }
 
 function renderTestimonial(props) {
+  const bgStyle = getBgStyle(props.background)
+  const overlay = getBgOverlayHtml(props.background)
+  const isImgBg = props.background?.type === 'image'
+  const textStyle = isImgBg ? 'color:#fff;' : ''
+  const subStyle = isImgBg ? 'color:rgba(255,255,255,0.75);' : ''
   return `
-  <section class="oc-testimonial">
-    <div class="oc-container oc-testimonial__inner">
-      <blockquote class="oc-testimonial__quote">${escHtml(props.quote)}</blockquote>
+  <section class="oc-testimonial" style="${bgStyle}">
+    ${overlay}
+    <div class="oc-container oc-testimonial__inner" style="position:relative;z-index:1;">
+      <blockquote class="oc-testimonial__quote" style="${textStyle}">${escHtml(props.quote)}</blockquote>
       <footer class="oc-testimonial__author">
         ${props.avatar ? `<img src="${escHtml(props.avatar)}" alt="${escHtml(props.author)}" class="oc-testimonial__avatar" loading="lazy" />` : `<div class="oc-testimonial__avatar-placeholder">${escHtml(props.author).charAt(0)}</div>`}
         <div>
-          <cite class="oc-testimonial__name">${escHtml(props.author)}</cite>
-          <span class="oc-testimonial__role">${escHtml(props.role)}</span>
+          <cite class="oc-testimonial__name" style="${textStyle}">${escHtml(props.author)}</cite>
+          <span class="oc-testimonial__role" style="${subStyle}">${escHtml(props.role)}</span>
         </div>
       </footer>
     </div>
@@ -145,24 +192,30 @@ function renderTestimonial(props) {
 }
 
 function renderPricing(props) {
+  const bgStyle = getBgStyle(props.background)
+  const overlay = getBgOverlayHtml(props.background)
+  const isImgBg = props.background?.type === 'image'
+  const textStyle = isImgBg ? 'color:#fff;' : ''
+  const subStyle = isImgBg ? 'color:rgba(255,255,255,0.75);' : ''
   const plans = (props.plans || []).map(plan => `
-        <article class="oc-pricing-card${plan.highlighted ? ' oc-pricing-card--featured' : ''}">
+        <article class="oc-pricing-card${plan.highlighted ? ' oc-pricing-card--featured' : ''}" style="${isImgBg ? 'background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);backdrop-filter:blur(8px);' : ''}">
           ${plan.highlighted ? '<div class="oc-pricing-card__badge">Más Popular</div>' : ''}
-          <h3 class="oc-pricing-card__name">${escHtml(plan.name)}</h3>
-          <div class="oc-pricing-card__price">
+          <h3 class="oc-pricing-card__name" style="${textStyle}">${escHtml(plan.name)}</h3>
+          <div class="oc-pricing-card__price" style="${textStyle}">
             <span class="oc-pricing-card__amount">${escHtml(plan.price)}</span>
-            ${plan.period ? `<span class="oc-pricing-card__period">${escHtml(plan.period)}</span>` : ''}
+            ${plan.period ? `<span class="oc-pricing-card__period" style="${subStyle}">${escHtml(plan.period)}</span>` : ''}
           </div>
           <ul class="oc-pricing-card__features">
-            ${(plan.features || []).map(f => `<li>✓ ${escHtml(f)}</li>`).join('\n            ')}
+            ${(plan.features || []).map(f => `<li style="${subStyle}">✓ ${escHtml(f)}</li>`).join('\n            ')}
           </ul>
           <a href="#contacto" class="oc-btn oc-btn--${plan.highlighted ? 'primary' : 'outline'} oc-btn--full">${escHtml(plan.cta)}</a>
         </article>`).join('')
   return `
-  <section class="oc-pricing">
-    <div class="oc-container">
-      ${props.heading ? `<h2 class="oc-section-heading oc-section-heading--center">${escHtml(props.heading)}</h2>` : ''}
-      ${props.subheading ? `<p class="oc-section-sub">${escHtml(props.subheading)}</p>` : ''}
+  <section class="oc-pricing" style="${bgStyle}">
+    ${overlay}
+    <div class="oc-container" style="position:relative;z-index:1;">
+      ${props.heading ? `<h2 class="oc-section-heading oc-section-heading--center" style="${textStyle}">${escHtml(props.heading)}</h2>` : ''}
+      ${props.subheading ? `<p class="oc-section-sub" style="${subStyle}">${escHtml(props.subheading)}</p>` : ''}
       <div class="oc-pricing__grid">
         ${plans}
       </div>
@@ -199,17 +252,101 @@ function renderForm(props) {
           </div>`
   }).join('')
 
+  const bgStyle = getBgStyle(props.background)
+  const overlay = getBgOverlayHtml(props.background)
+  const isImgBg = props.background?.type === 'image'
+  const textStyle = isImgBg ? 'color:#fff;' : ''
+  const subStyle = isImgBg ? 'color:rgba(255,255,255,0.8);' : ''
   return `
-  <section class="oc-form-section" id="${props.formId || 'contacto'}">
-    <div class="oc-container oc-form-section__inner">
-      ${props.heading ? `<h2 class="oc-section-heading oc-section-heading--center">${escHtml(props.heading)}</h2>` : ''}
-      ${props.description ? `<p class="oc-section-sub">${escHtml(props.description)}</p>` : ''}
-      <form class="oc-form" action="${formAction}" method="POST">
+  <section class="oc-form-section" id="${props.formId || 'contacto'}" style="${bgStyle}">
+    ${overlay}
+    <div class="oc-container oc-form-section__inner" style="position:relative;z-index:1;">
+      ${props.heading ? `<h2 class="oc-section-heading oc-section-heading--center" style="${textStyle}">${escHtml(props.heading)}</h2>` : ''}
+      ${props.description ? `<p class="oc-section-sub" style="${subStyle}">${escHtml(props.description)}</p>` : ''}
+      <form class="oc-form" action="${formAction}" method="POST" style="${isImgBg ? 'background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);' : ''}">
         ${fields}
         <button type="submit" class="oc-btn oc-btn--primary oc-btn--lg oc-btn--full">${escHtml(props.submitText)}</button>
       </form>
     </div>
   </section>`
+}
+
+function renderCarousel(props) {
+  const slides = props.slides || []
+  if (slides.length === 0) return ''
+  const height = props.height || '520px'
+  const align = props.textAlign || 'center'
+  const overlayOpacity = Number(props.overlayOpacity ?? 0.45)
+  const overlayColor = props.overlayColor || '#000000'
+  const speed = props.speed || 4000
+  const carouselId = `oc-car-${Math.random().toString(36).substr(2, 6)}`
+
+  const slidesHtml = slides.map((s, i) => `
+    <div class="oc-carousel__slide${i === 0 ? ' is-active' : ''}" data-index="${i}">
+      <div class="oc-carousel__bg" style="background-image:url('${escHtml(s.image || '')}')"></div>
+      <div class="oc-carousel__overlay" style="opacity:${overlayOpacity};background:${overlayColor}"></div>
+      <div class="oc-carousel__content oc-carousel__content--${align}">
+        <h2 class="oc-carousel__title">${escHtml(s.title)}</h2>
+        ${s.description ? `<p class="oc-carousel__desc">${escHtml(s.description)}</p>` : ''}
+        ${s.cta ? `<a href="${escHtml(s.ctaLink || '#')}" class="oc-btn oc-btn--primary oc-btn--lg">${escHtml(s.cta)}</a>` : ''}
+      </div>
+    </div>`).join('')
+
+  const dotsHtml = props.showDots && slides.length > 1 ? `
+    <div class="oc-carousel__dots">
+      ${slides.map((_, i) => `<button class="oc-carousel__dot${i === 0 ? ' is-active' : ''}" data-index="${i}" aria-label="Slide ${i + 1}"></button>`).join('')}
+    </div>` : ''
+
+  const arrowsHtml = props.showArrows && slides.length > 1 ? `
+    <button class="oc-carousel__arrow oc-carousel__arrow--prev" aria-label="Anterior">&#8249;</button>
+    <button class="oc-carousel__arrow oc-carousel__arrow--next" aria-label="Siguiente">&#8250;</button>` : ''
+
+  const progressHtml = props.autoplay ? `<div class="oc-carousel__progress"><div class="oc-carousel__progress-bar"></div></div>` : ''
+
+  return `
+  <section class="oc-carousel" id="${carouselId}" style="height:${height}" data-autoplay="${props.autoplay ? speed : 0}">
+    <div class="oc-carousel__track">
+      ${slidesHtml}
+    </div>
+    ${arrowsHtml}
+    ${dotsHtml}
+    ${progressHtml}
+  </section>
+  <script>
+  (function() {
+    var car = document.getElementById('${carouselId}');
+    if (!car) return;
+    var slides = car.querySelectorAll('.oc-carousel__slide');
+    var dots = car.querySelectorAll('.oc-carousel__dot');
+    var bar = car.querySelector('.oc-carousel__progress-bar');
+    var current = 0;
+    var total = slides.length;
+    var autoplay = parseInt(car.dataset.autoplay) || 0;
+    var timer;
+
+    function goTo(n) {
+      slides[current].classList.remove('is-active');
+      if (dots[current]) dots[current].classList.remove('is-active');
+      current = (n + total) % total;
+      slides[current].classList.add('is-active');
+      if (dots[current]) dots[current].classList.add('is-active');
+      if (bar) { bar.style.transition='none'; bar.style.width='0%'; setTimeout(function(){ bar.style.transition='width '+autoplay+'ms linear'; bar.style.width='100%'; }, 20); }
+    }
+
+    var prevBtn = car.querySelector('.oc-carousel__arrow--prev');
+    var nextBtn = car.querySelector('.oc-carousel__arrow--next');
+    if (prevBtn) prevBtn.addEventListener('click', function(){ clearInterval(timer); goTo(current-1); if(autoplay) startTimer(); });
+    if (nextBtn) nextBtn.addEventListener('click', function(){ clearInterval(timer); goTo(current+1); if(autoplay) startTimer(); });
+    dots.forEach(function(d){ d.addEventListener('click', function(){ clearInterval(timer); goTo(parseInt(d.dataset.index)); if(autoplay) startTimer(); }); });
+
+    function startTimer() {
+      if (!autoplay) return;
+      timer = setInterval(function(){ goTo(current+1); }, autoplay);
+      if (bar) { bar.style.transition='none'; bar.style.width='0%'; setTimeout(function(){ bar.style.transition='width '+autoplay+'ms linear'; bar.style.width='100%'; }, 20); }
+    }
+    if (autoplay) startTimer();
+  })();
+  </script>`
 }
 
 function renderDivider(props) {
@@ -222,25 +359,31 @@ function renderSpacer(props) {
 }
 
 function renderFooter(props) {
+  const bgStyle = getBgStyle(props.background)
+  const overlay = getBgOverlayHtml(props.background)
+  const isImgBg = props.background?.type === 'image'
+  const textStyle = isImgBg ? 'color:#fff;' : ''
+  const subStyle = isImgBg ? 'color:rgba(255,255,255,0.7);' : ''
   const colsHtml = (props.columns || []).map(col => `
         <div class="oc-footer__col">
-          <h4>${escHtml(col.heading)}</h4>
+          <h4 style="${textStyle}">${escHtml(col.heading)}</h4>
           <ul>
-            ${(col.links || []).map(l => `<li><a href="${escHtml(l.href)}">${escHtml(l.text)}</a></li>`).join('\n            ')}
+            ${(col.links || []).map(l => `<li><a href="${escHtml(l.href)}" style="${subStyle}">${escHtml(l.text)}</a></li>`).join('\n            ')}
           </ul>
         </div>`).join('')
 
   return `
-  <footer class="oc-footer">
-    <div class="oc-container oc-footer__inner">
+  <footer class="oc-footer" style="${bgStyle}">
+    ${overlay}
+    <div class="oc-container oc-footer__inner" style="position:relative;z-index:1;">
       <div class="oc-footer__brand">
-        <div class="oc-footer__logo">${escHtml(props.logo)}</div>
-        ${props.tagline ? `<p class="oc-footer__tagline">${escHtml(props.tagline)}</p>` : ''}
+        <div class="oc-footer__logo" style="${textStyle}">${escHtml(props.logo)}</div>
+        ${props.tagline ? `<p class="oc-footer__tagline" style="${subStyle}">${escHtml(props.tagline)}</p>` : ''}
       </div>
       ${colsHtml ? `<div class="oc-footer__cols">${colsHtml}</div>` : ''}
     </div>
-    <div class="oc-footer__bottom">
-      <div class="oc-container">${escHtml(props.copyright)}</div>
+    <div class="oc-footer__bottom" style="${isImgBg ? 'border-top:1px solid rgba(255,255,255,0.15);' : ''}">
+      <div class="oc-container" style="${subStyle}">${escHtml(props.copyright)}</div>
     </div>
   </footer>`
 }
@@ -257,6 +400,7 @@ function renderComponent(component) {
     case 'testimonial': return renderTestimonial(props)
     case 'pricing': return renderPricing(props)
     case 'form': return renderForm(props)
+    case 'carousel': return renderCarousel(props)
     case 'divider': return renderDivider(props)
     case 'spacer': return renderSpacer(props)
     case 'footer': return renderFooter(props)
@@ -698,34 +842,163 @@ h1, h2, h3, h4 { font-family: var(--font-heading); line-height: 1.2; }
 }
 
 /* =============================================
+   Carousel
+   ============================================= */
+.oc-carousel {
+  position: relative;
+  overflow: hidden;
+  background: #111;
+}
+.oc-carousel__track { position: absolute; inset: 0; }
+.oc-carousel__slide {
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+.oc-carousel__slide.is-active { opacity: 1; }
+.oc-carousel__bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.oc-carousel__overlay {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.oc-carousel__content {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 48px 64px;
+  z-index: 2;
+}
+.oc-carousel__content--center { align-items: center; text-align: center; }
+.oc-carousel__content--left { align-items: flex-start; text-align: left; }
+.oc-carousel__content--right { align-items: flex-end; text-align: right; }
+.oc-carousel__title {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  max-width: 700px;
+}
+.oc-carousel__desc {
+  font-size: clamp(0.9375rem, 1.5vw, 1.125rem);
+  color: rgba(255,255,255,0.85);
+  line-height: 1.65;
+  margin-bottom: 28px;
+  max-width: 560px;
+}
+.oc-carousel__arrow {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  z-index: 10;
+  width: 48px; height: 48px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+  line-height: 1;
+}
+.oc-carousel__arrow:hover { background: rgba(255,255,255,0.3); }
+.oc-carousel__arrow--prev { left: 20px; }
+.oc-carousel__arrow--next { right: 20px; }
+.oc-carousel__dots {
+  position: absolute;
+  bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 10;
+  display: flex; gap: 8px;
+}
+.oc-carousel__dot {
+  width: 8px; height: 8px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.4);
+  border: none; cursor: pointer;
+  transition: all 0.3s ease; padding: 0;
+}
+.oc-carousel__dot.is-active { width: 24px; background: #fff; }
+.oc-carousel__progress {
+  position: absolute; bottom: 0; left: 0;
+  width: 100%; height: 3px;
+  background: rgba(255,255,255,0.2);
+  z-index: 10;
+}
+.oc-carousel__progress-bar {
+  height: 100%;
+  background: var(--color-primary);
+  width: 0%;
+}
+
+/* =============================================
    Responsive
    ============================================= */
 @media (max-width: 768px) {
+  .oc-container { padding: 0 16px; }
+
+  /* Navbar */
   .oc-navbar__links { display: none; }
   .oc-navbar__toggle { display: flex; }
   .oc-navbar.is-open .oc-navbar__links {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 64px;
-    left: 0;
-    right: 0;
+    display: flex; flex-direction: column;
+    position: absolute; top: 64px; left: 0; right: 0;
     background: var(--color-bg);
-    padding: 20px 24px;
+    padding: 20px 16px;
     border-bottom: 1px solid var(--color-border);
-    gap: 16px;
-    z-index: 99;
+    gap: 16px; z-index: 99;
   }
   .oc-navbar.is-open .oc-btn { display: none; }
-  .oc-hero { padding: 56px 0; }
+
+  /* Hero */
+  .oc-hero { padding: 52px 0; }
   .oc-hero__actions { flex-direction: column; align-items: stretch; }
   .oc-hero--center .oc-hero__actions { align-items: center; }
+
+  /* Features */
+  .oc-features { padding: 56px 0; }
+  .oc-features__grid--2,
   .oc-features__grid--3,
-  .oc-features__grid--4 { grid-template-columns: 1fr; }
+  .oc-features__grid--4 { grid-template-columns: 1fr; gap: 16px; }
+  .oc-feature-card { padding: 24px 20px; }
+
+  /* Pricing */
+  .oc-pricing { padding: 56px 0; }
   .oc-pricing__grid { grid-template-columns: 1fr; }
-  .oc-form { padding: 28px 20px; }
-  .oc-footer__inner { flex-direction: column; gap: 32px; }
-  .oc-footer__cols { flex-direction: column; gap: 24px; }
+  .oc-pricing-card { padding: 28px 20px; }
+
+  /* Form */
+  .oc-form-section { padding: 56px 0; }
+  .oc-form { padding: 24px 16px; }
+
+  /* Testimonial */
+  .oc-testimonial { padding: 56px 0; }
+
+  /* Text section */
+  .oc-text-section { padding: 52px 0; }
+
+  /* Footer */
+  .oc-footer { padding: 44px 0 0; }
+  .oc-footer__inner { flex-direction: column; gap: 28px; }
+  .oc-footer__cols { flex-direction: column; gap: 20px; }
+
+  /* Carousel */
+  .oc-carousel__content { padding: 32px 24px; }
+  .oc-carousel__arrow { width: 40px; height: 40px; font-size: 1.25rem; }
+  .oc-carousel__arrow--prev { left: 10px; }
+  .oc-carousel__arrow--next { right: 10px; }
+}
+
+@media (max-width: 480px) {
+  .oc-hero__headline { font-size: clamp(1.75rem, 8vw, 2.5rem); }
+  .oc-hero__sub { font-size: 1rem; }
+  .oc-btn--lg, .oc-btn--large { padding: 14px 24px; font-size: 1rem; width: 100%; text-align: center; }
+  .oc-hero__actions .oc-btn { width: 100%; justify-content: center; }
+  .oc-section-heading { font-size: 1.625rem; }
 }
 `
 }

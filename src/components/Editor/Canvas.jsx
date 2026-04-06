@@ -23,6 +23,7 @@ const COMPONENT_LABELS = {
   hero: 'Hero',
   textSection: 'Texto',
   image: 'Imagen',
+  carousel: 'Carrusel',
   button: 'Botón',
   features: 'Características',
   testimonial: 'Testimonio',
@@ -58,12 +59,16 @@ export default function Canvas() {
   // Keyboard delete
   useEffect(() => {
     function onKey(e) {
+      const tag = document.activeElement?.tagName
+      const isEditing = document.activeElement?.contentEditable === 'true'
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
-        const tag = document.activeElement?.tagName
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || isEditing) return
         removeComponent(selectedId)
       }
-      if (e.key === 'Escape') setSelected(null)
+      if (e.key === 'Escape') {
+        if (isEditing) return
+        setSelected(null)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
